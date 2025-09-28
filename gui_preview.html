@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VibeVoice Integrated TTS/STT Studio - Preview</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f2f6;
+        }
+        
+        .header {
+            background: linear-gradient(90deg, #ff6b6b, #4ecdc4);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .status-row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .status-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            flex: 1;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .status-good { border-left: 4px solid #28a745; }
+        .status-demo { border-left: 4px solid #ffc107; }
+        
+        .sidebar {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .tab-container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .tabs {
+            display: flex;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .tab {
+            padding: 15px 20px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .tab.active {
+            background: white;
+            border-bottom: 2px solid #ff6b6b;
+            color: #ff6b6b;
+        }
+        
+        .tab-content {
+            padding: 30px;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        .label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .text-area {
+            width: 100%;
+            min-height: 120px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-family: inherit;
+            resize: vertical;
+        }
+        
+        .select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: white;
+        }
+        
+        .button {
+            background: linear-gradient(90deg, #ff6b6b, #4ecdc4);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-right: 10px;
+        }
+        
+        .button:hover {
+            opacity: 0.9;
+        }
+        
+        .demo-notice {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 12px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .feature-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .feature-icon {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎙️ VibeVoice Integrated TTS/STT Studio</h1>
+        <p>A comprehensive one-stop shop for Text-to-Speech and Speech-to-Text</p>
+    </div>
+    
+    <div class="demo-notice">
+        🎭 <strong>Demo Mode Active</strong>: Generating synthetic audio for demonstration. Install required models for full functionality.
+    </div>
+    
+    <div class="status-row">
+        <div class="status-card status-demo">
+            <h3>VibeVoice</h3>
+            <p>✅ Loaded (Demo)</p>
+        </div>
+        <div class="status-card status-demo">
+            <h3>Whisper</h3>
+            <p>✅ Loaded (Demo)</p>
+        </div>
+        <div class="status-card status-demo">
+            <h3>Coqui TTS</h3>
+            <p>✅ Loaded (Demo)</p>
+        </div>
+    </div>
+    
+    <div class="sidebar">
+        <h3>🔧 Model Configuration</h3>
+        
+        <h4>VibeVoice TTS</h4>
+        <div class="input-group">
+            <label class="label">Model Path</label>
+            <input type="text" value="microsoft/VibeVoice-1.5B" class="select" readonly>
+        </div>
+        <button class="button">Load VibeVoice</button>
+        
+        <h4>Whisper STT</h4>
+        <div class="input-group">
+            <label class="label">Model Size</label>
+            <select class="select">
+                <option>tiny</option>
+                <option selected>base</option>
+                <option>small</option>
+                <option>medium</option>
+                <option>large</option>
+            </select>
+        </div>
+        <button class="button">Load Whisper</button>
+        
+        <h4>Coqui TTS</h4>
+        <div class="input-group">
+            <label class="label">Model</label>
+            <select class="select">
+                <option selected>tts_models/en/ljspeech/tacotron2-DDC</option>
+                <option>tts_models/en/ljspeech/glow-tts</option>
+                <option>tts_models/en/vctk/vits</option>
+            </select>
+        </div>
+        <button class="button">Load Coqui TTS</button>
+    </div>
+    
+    <div class="tab-container">
+        <div class="tabs">
+            <button class="tab active">🗣️ Text-to-Speech</button>
+            <button class="tab">👂 Speech-to-Text</button>
+            <button class="tab">📚 Ebook to Audiobook</button>
+            <button class="tab">🎙️ Podcast Generation</button>
+            <button class="tab">🎭 Voice Cloning</button>
+        </div>
+        
+        <div class="tab-content">
+            <h2>Text-to-Speech Generation</h2>
+            
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 30px;">
+                <div>
+                    <div class="input-group">
+                        <label class="label">Enter text to synthesize:</label>
+                        <textarea class="text-area" placeholder="Type your text here...">Welcome to VibeVoice Integrated Studio! This comprehensive platform combines the power of VibeVoice, Whisper, and Coqui TTS to provide an all-in-one solution for text-to-speech and speech-to-text applications.</textarea>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label class="label">TTS Engine</label>
+                        <select class="select">
+                            <option selected>VibeVoice</option>
+                            <option>Coqui TTS</option>
+                        </select>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label class="label">CFG Scale</label>
+                        <input type="range" min="0.1" max="2.0" step="0.1" value="1.3" class="select">
+                        <span>1.3</span>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label class="label">Voice Preset</label>
+                        <select class="select">
+                            <option selected>Alice</option>
+                            <option>Bob</option>
+                            <option>Charlie</option>
+                            <option>Diana</option>
+                            <option>Emma</option>
+                            <option>Frank</option>
+                        </select>
+                    </div>
+                    
+                    <button class="button">Generate Speech</button>
+                </div>
+                
+                <div>
+                    <h3>Voice Samples</h3>
+                    <div style="border: 2px dashed #ddd; padding: 20px; text-align: center; border-radius: 5px; margin-bottom: 15px;">
+                        <p>📁 Upload voice samples (optional)</p>
+                        <small>WAV, MP3, FLAC files</small>
+                    </div>
+                    
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 5px;">
+                        <h4>Generated Audio</h4>
+                        <div style="background: #e9ecef; padding: 10px; border-radius: 3px; margin-bottom: 10px;">
+                            <span>🎵 generated_speech.wav</span>
+                        </div>
+                        <button class="button" style="background: #28a745;">▶️ Play</button>
+                        <button class="button" style="background: #007bff;">⬇️ Download</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="feature-grid" style="margin-top: 30px;">
+        <div class="feature-card">
+            <div class="feature-icon">🗣️</div>
+            <h3>Advanced TTS</h3>
+            <p>Multiple engines including VibeVoice for long-form conversational speech and Coqui TTS for voice cloning</p>
+        </div>
+        
+        <div class="feature-card">
+            <div class="feature-icon">👂</div>
+            <h3>Speech-to-Text</h3>
+            <p>OpenAI Whisper integration for accurate transcription of audio files in multiple formats</p>
+        </div>
+        
+        <div class="feature-card">
+            <div class="feature-icon">📚</div>
+            <h3>Ebook Conversion</h3>
+            <p>Transform text files into professional audiobooks with chapter splitting and voice selection</p>
+        </div>
+        
+        <div class="feature-card">
+            <div class="feature-icon">🎙️</div>
+            <h3>Podcast Creation</h3>
+            <p>Generate multi-speaker podcasts from scripts with automatic speaker detection and voice assignment</p>
+        </div>
+        
+        <div class="feature-card">
+            <div class="feature-icon">🎭</div>
+            <h3>Voice Cloning</h3>
+            <p>Clone voices from audio samples using advanced AI models for personalized speech synthesis</p>
+        </div>
+        
+        <div class="feature-card">
+            <div class="feature-icon">⚡</div>
+            <h3>Demo Mode</h3>
+            <p>Works offline with synthetic audio generation for testing and demonstration purposes</p>
+        </div>
+    </div>
+    
+    <div style="text-align: center; margin: 40px 0; padding: 20px; background: white; border-radius: 10px;">
+        <h3>🚀 Get Started</h3>
+        <p>Launch the integrated studio with:</p>
+        <code style="background: #f8f9fa; padding: 5px 10px; border-radius: 3px;">python launch_gui.py</code>
+        <br><br>
+        <p><strong>Powered by state-of-the-art AI models for professional audio generation and transcription.</strong></p>
+    </div>
+</body>
+</html>
