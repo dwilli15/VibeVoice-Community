@@ -1,0 +1,64 @@
+{
+  "tts_engines": [
+    {
+      "name": "VibeVoice",
+      "description": "Long-form conversational TTS",
+      "features": [
+        "Multi-speaker",
+        "Voice cloning",
+        "Long sequences"
+      ]
+    },
+    {
+      "name": "Coqui TTS",
+      "description": "Advanced voice synthesis",
+      "features": [
+        "Voice cloning",
+        "Multi-language",
+        "High quality"
+      ]
+    }
+  ],
+  "stt_engines": [
+    {
+      "name": "OpenAI Whisper",
+      "description": "State-of-the-art speech recognition",
+      "features": [
+        "Multi-language",
+        "High accuracy",
+        "Robust to noise"
+      ]
+    }
+  ],
+  "voice_presets": {
+    "Alice": {
+      "type": "female",
+      "style": "professional"
+    },
+    "Bob": {
+      "type": "male",
+      "style": "conversational"
+    },
+    "Charlie": {
+      "type": "male",
+      "style": "technical"
+    },
+    "Diana": {
+      "type": "female",
+      "style": "storyteller"
+    }
+  },
+  "supported_formats": {
+    "input": [
+      "txt",
+      "md",
+      "docx",
+      "pdf"
+    ],
+    "output": [
+      "wav",
+      "mp3",
+      "flac"
+    ]
+  }
+}

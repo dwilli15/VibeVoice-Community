@@ -1,0 +1,4 @@
+Welcome to VibeVoice, an advanced text-to-speech system capable of generating
+        long-form conversational audio. This technology can create natural-sounding
+        speech with multiple speakers, making it perfect for audiobooks, podcasts,
+        and educational content.
