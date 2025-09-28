@@ -1,0 +1,138 @@
+# Dockerfile for Ebook to Audiobook Converter with Coqui AI Support
+# Uses Python 3.11 for TTS package compatibility
+
+FROM nvidia/cuda:12.1-devel-ubuntu22.04
+
+# Set environment variables
+ENV DEBIAN_FRONTEND=noninteractive \
+    PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    CUDA_HOME=/usr/local/cuda \
+    PATH=/usr/local/cuda/bin:$PATH \
+    LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    python3.11 \
+    python3.11-dev \
+    python3.11-distutils \
+    python3-pip \
+    git \
+    wget \
+    curl \
+    build-essential \
+    cmake \
+    pkg-config \
+    libsndfile1 \
+    libsndfile1-dev \
+    ffmpeg \
+    espeak \
+    espeak-data \
+    libespeak-dev \
+    portaudio19-dev \
+    libasound2-dev \
+    libpulse-dev \
+    libjack-dev \
+    libmagic1 \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    libsm6 \
+    libxext6 \
+    libxrender-dev \
+    libgomp1 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set up Python 3.11 as default
+RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 1 && \
+    update-alternatives --install /usr/bin/python python /usr/bin/python3.11 1
+
+# Install pip for Python 3.11
+RUN curl https://bootstrap.pypa.io/get-pip.py | python3.11
+
+# Create workspace
+WORKDIR /workspace
+
+# Copy requirements and install Python dependencies
+COPY pyproject.toml ./
+
+# Install PyTorch with CUDA 12.1 support
+RUN pip install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+
+# Install core dependencies (pin compatible versions)
+RUN pip install --no-cache-dir \
+    "transformers==4.51.3" \
+    "accelerate==1.6.0" \
+    "diffusers>=0.24.0" \
+    "tokenizers>=0.15.0" \
+    soundfile \
+    librosa \
+    numpy \
+    scipy
+
+# Install Coqui TTS and its dependencies
+RUN pip install --no-cache-dir \
+    TTS \
+    coqpit \
+    librosa \
+    unidecode \
+    inflect \
+    anyascii
+
+# Install document processing libraries
+RUN pip install --no-cache-dir \
+    pypdf \
+    python-docx \
+    ebooklib \
+    beautifulsoup4
+
+# Install web interface dependencies
+RUN pip install --no-cache-dir \
+    gradio \
+    fastapi \
+    uvicorn
+
+# Install additional TTS fallback engines
+RUN pip install --no-cache-dir \
+    pyttsx3 \
+    gtts
+
+# Copy application code
+COPY . .
+
+# Set Python path to include workspace and mounted Coqui
+ENV PYTHONPATH=/workspace:/workspace/coqui-ai
+
+# Create necessary directories
+RUN mkdir -p /workspace/ebook_input /workspace/ebook_output /workspace/models/coqui
+
+# Create startup script
+RUN echo '#!/bin/bash\n\
+set -e\n\
+\n\
+echo "🔧 Starting Ebook Converter (Python 3.11 + Coqui)..."\n\
+echo "📊 Python version: $(python --version)"\n\
+echo "🎭 TTS version: $(python -c \"import TTS; print(TTS.__version__)\" 2>/dev/null || echo \"Not available\")"\n\
+echo "🔥 PyTorch version: $(python -c \"import torch; print(torch.__version__)\" 2>/dev/null || echo \"Not available\")"\n\
+echo "🖥️ CUDA available: $(python -c \"import torch; print(torch.cuda.is_available())\" 2>/dev/null || echo \"Unknown\")"\n\
+\n\
+# Kill any process using the port\n\
+lsof -ti:7863 | xargs -r kill -9 || true\n\
+\n\
+# Set Coqui TTS environment\n\
+export COQUI_TOS_AGREED=1\n\
+export TTS_CACHE_PATH=/workspace/models/coqui\n\
+\n\
+# Start the application\n\
+echo "🚀 Starting Ebook GUI on port 7863..."\n\
+python ebook_gui.py --port 7863\n\
+' > /workspace/start_ebook_py311.sh && chmod +x /workspace/start_ebook_py311.sh
+
+# Expose port
+EXPOSE 7863
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+    CMD curl -f http://localhost:7863/ || exit 1
+
+# Default command
+CMD ["/workspace/start_ebook_py311.sh"]

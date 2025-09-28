@@ -1,0 +1,30 @@
+            convert_btn.click(
+                fn=handle_convert_ebook,
+            open_output_btn.click(
+                fn=self.open_output_dir,
+                inputs=[output_root_input],
+                outputs=[status_ticker]
+            )
+
+            convert_btn_save.click(
+                fn=lambda *args: self.convert_ebook_with_status(*args),
+                inputs=[
+                    file_input,
+                    voice_dropdown,
+                    speed_slider,
+                    format_radio,
+                    engine_dropdown,
+                    bitrate_dropdown,
+                    title_input,
+                    author_input,
+                    cover_input,
+                    preview_checkbox,
+                    output_root_input
+                ],
+                outputs=[status_ticker, status_output, output_dir, audio_files],
+                show_progress=True
+            ).then(
+                fn=lambda files: gr.update(visible=len(files) > 0) if files else gr.update(visible=False),
+                inputs=[audio_files],
+                outputs=[audio_files]
+            )

@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+  vibevoice-production:
+    build:
+      context: .
+      dockerfile: Dockerfile.production
+    container_name: vibevoice-production
+    ports:
+      - "7862:7862"
+    volumes:
+      # Outputs and models
+      - ./outputs:/workspace/outputs
+      - ./models:/workspace/models
+      - ./demo/voices:/workspace/demo/voices
+      
+      # External tokenizer (critical for VibeVoice TTS)
+      - d:/omen/temp/tokenizer:/workspace/tokenizer:ro
+      
+      # Optional: Coqui AI models if available
+      - d:/omen/coqui-ai:/workspace/coqui-ai:ro
+      
+      # Development mounts (for live editing)
+      - ./ebook_gui.py:/workspace/ebook_gui.py
+      - ./tts_backend.py:/workspace/tts_backend.py
+      - ./ebook_converter.py:/workspace/ebook_converter.py
+      
+    environment:
+      # GPU Configuration
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+      - CUDA_VISIBLE_DEVICES=0
+      
+      # VibeVoice Configuration
+      - HF_HOME=/models/hf
+      - TRANSFORMERS_FORCE_ATTENTION_IMPLEMENTATION=sdpa
+      
+      # TTS Configuration
+      - COQUI_TOS_AGREED=1
+      
+      # Port Management
+      - GUI_PORT=7862
+      - GUI_HOST=0.0.0.0
+      
+      # Unicode/Encoding
+      - PYTHONIOENCODING=utf-8
+      - LANG=C.UTF-8
+      - LC_ALL=C.UTF-8
+      
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    
+    restart: unless-stopped
+    
+    healthcheck:
+      test: ["CMD", "python", "port_manager.py", "--port", "7862"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s

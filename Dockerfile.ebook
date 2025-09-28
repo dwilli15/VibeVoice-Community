@@ -1,0 +1,144 @@
+# Ebook to Audiobook Converter Dockerfile
+# Enhanced VibeVoice container with document processing capabilities
+
+FROM nvidia/cuda:12.1-devel-ubuntu22.04
+
+# Prevent interactive prompts
+ENV DEBIAN_FRONTEND=noninteractive
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONIOENCODING=utf-8
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    python3 \
+    python3-pip \
+    python3-dev \
+    git \
+    wget \
+    curl \
+    vim \
+    ffmpeg \
+    sox \
+    libsox-fmt-all \
+    espeak-ng \
+    espeak-ng-data \
+    libsndfile1 \
+    build-essential \
+    cmake \
+    pkg-config \
+    libssl-dev \
+    libffi-dev \
+    libbz2-dev \
+    libreadline-dev \
+    libsqlite3-dev \
+    libncurses5-dev \
+    libncursesw5-dev \
+    xz-utils \
+    tk-dev \
+    libffi-dev \
+    liblzma-dev \
+    python3-openssl \
+    # Document processing libraries
+    poppler-utils \
+    antiword \
+    pandoc \
+    # Audio processing
+    libportaudio2 \
+    libasound2-dev \
+    # Cleanup
+    && rm -rf /var/lib/apt/lists/*
+
+# Set working directory
+WORKDIR /workspace
+
+# Copy requirements first for better Docker layer caching
+COPY requirements.txt* ./
+
+# Install Python dependencies
+RUN pip3 install --no-cache-dir --upgrade pip setuptools wheel
+
+# Install PyTorch with CUDA support
+RUN pip3 install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+
+# Install core dependencies
+RUN pip3 install --no-cache-dir \
+    transformers \
+    accelerate \
+    diffusers \
+    safetensors \
+    tokenizers \
+    datasets \
+    # Gradio and web interface
+    gradio \
+    fastapi \
+    uvicorn \
+    # Audio processing
+    soundfile \
+    librosa \
+    scipy \
+    numpy \
+    # Document processing
+    pypdf \
+    python-docx \
+    ebooklib \
+    beautifulsoup4 \
+    lxml \
+    # Utility libraries
+    pillow \
+    requests \
+    tqdm \
+    psutil \
+    # TTS dependencies
+    phonemizer \
+    unidecode \
+    inflect \
+    bangla \
+    jieba \
+    pypinyin \
+    # Additional audio/video processing
+    pydub \
+    moviepy
+
+# Install requirements if they exist
+RUN if [ -f requirements.txt ]; then pip3 install --no-cache-dir -r requirements.txt; fi
+
+# Copy application code
+COPY . .
+
+# Set Python path
+ENV PYTHONPATH=/workspace:/workspace/coqui-ai
+
+# Create necessary directories
+RUN mkdir -p /workspace/outputs \
+    /workspace/ebook_input \
+    /workspace/ebook_output \
+    /workspace/models \
+    /workspace/cache
+
+# Set permissions
+RUN chmod -R 755 /workspace
+
+# Create startup script
+RUN echo '#!/bin/bash\n\
+# Kill any existing processes on the port\n\
+lsof -ti:7862 | xargs -r kill -9\n\
+\n\
+# Start the ebook converter GUI\n\
+echo "🚀 Starting Ebook to Audiobook Converter..."\n\
+echo "📚 Access the interface at: http://localhost:7862"\n\
+echo "🎯 Features: PDF, TXT, DOCX, EPUB to Audiobook conversion"\n\
+echo "🎙️ TTS: VibeVoice + Coqui AI integration"\n\
+\n\
+cd /workspace\n\
+python3 ebook_gui.py\n\
+' > /workspace/start_ebook.sh && chmod +x /workspace/start_ebook.sh
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD curl -f http://localhost:7862/health || exit 1
+
+# Expose port
+EXPOSE 7862
+
+# Default command
+CMD ["./start_ebook.sh"]

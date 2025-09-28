@@ -1,0 +1,68 @@
+# Multi-Model TTS Docker with VibeVoice + Coqui AI
+FROM nvcr.io/nvidia/pytorch:24.08-py3
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    PIP_NO_CACHE_DIR=1 \
+    PYTHONUNBUFFERED=1 \
+    HF_HOME=/models/hf \
+    TRANSFORMERS_FORCE_ATTENTION_IMPLEMENTATION=sdpa \
+    WORKDIR=/workspace \
+    CUDA_VISIBLE_DEVICES=0 \
+    NVIDIA_VISIBLE_DEVICES=all \
+    NVIDIA_DRIVER_CAPABILITIES=compute,utility \
+    COQUI_TOS_AGREED=1
+
+WORKDIR ${WORKDIR}
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ffmpeg git build-essential lsof \
+    espeak espeak-data libespeak1 libespeak-dev \
+    festival festvox-kallpc16k \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy repo content
+COPY . /workspace
+
+# Install python deps (editable VibeVoice)
+RUN pip install --upgrade pip && \
+    if [ -f pyproject.toml ]; then pip install -e .; fi
+
+# Install TTS dependencies
+RUN pip install \
+    TTS \
+    gradio \
+    soundfile \
+    librosa \
+    numpy \
+    scipy \
+    torch \
+    torchaudio \
+    transformers \
+    accelerate \
+    Pillow
+
+# Install additional audio processing libraries
+RUN pip install \
+    pyaudio \
+    python-sounddevice \
+    pydub \
+    webrtcvad
+
+# Create directories for models and outputs
+RUN mkdir -p /workspace/outputs \
+    /workspace/models/coqui \
+    /workspace/models/vibevoice \
+    /workspace/voices/custom
+
+# Set up Coqui TTS models directory
+ENV COQUI_TTS_CACHE_PATH=/workspace/models/coqui
+
+# Default ports for web demos
+EXPOSE 7860 7861
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD curl -f http://localhost:7860/ || exit 1
+
+# Default command: run multi-model TTS interface
+CMD ["bash","-lc","lsof -ti:7860 | xargs -r kill -9; python demo/gradio_demo.py --model_path microsoft/VibeVoice-1.5B --share"]

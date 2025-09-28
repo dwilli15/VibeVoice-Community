@@ -1,0 +1,64 @@
+# VibeVoice-Community Production Docker Image
+# Includes all latest fixes: GPU PyTorch, Port Management, TTS Backend, VibeVoice fixes
+FROM nvcr.io/nvidia/pytorch:24.08-py3
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    PIP_NO_CACHE_DIR=1 \
+    PYTHONUNBUFFERED=1 \
+    HF_HOME=/models/hf \
+    TRANSFORMERS_FORCE_ATTENTION_IMPLEMENTATION=sdpa \
+    WORKDIR=/workspace \
+    CUDA_VISIBLE_DEVICES=0 \
+    NVIDIA_VISIBLE_DEVICES=all \
+    NVIDIA_DRIVER_CAPABILITIES=compute,utility \
+    PYTHONIOENCODING=utf-8 \
+    LANG=C.UTF-8 \
+    LC_ALL=C.UTF-8
+
+WORKDIR ${WORKDIR}
+
+# System dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ffmpeg \
+    git \
+    build-essential \
+    lsof \
+    curl \
+    wget \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy all source code
+COPY . .
+
+# Install GPU-enabled PyTorch (matching production environment)
+RUN pip uninstall -y torch torchvision torchaudio && \
+    pip install torch==2.5.1+cu121 torchvision==0.20.1+cu121 torchaudio==2.5.1+cu121 \
+    --index-url https://download.pytorch.org/whl/cu121
+
+# Install production requirements
+COPY requirements-production.txt .
+RUN pip install -r requirements-production.txt
+
+# Install VibeVoice from local source
+RUN pip install -e .
+
+# Copy external tokenizer (if exists)
+RUN mkdir -p /workspace/tokenizer
+# Note: Mount external tokenizer at runtime: -v d:/omen/temp/tokenizer:/workspace/tokenizer
+
+# Create directories for outputs and models
+RUN mkdir -p /workspace/outputs /workspace/models /workspace/temp
+
+# Port management and startup scripts
+COPY port_manager.py start_gui.py port_helper.py ./
+RUN chmod +x start_gui.py
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD python port_manager.py --port 7862 || exit 1
+
+# Expose port
+EXPOSE 7862
+
+# Default command - use enhanced startup with port management
+CMD ["python", "start_gui.py", "--port", "7862", "--host", "0.0.0.0"]

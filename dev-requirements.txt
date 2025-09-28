@@ -1,0 +1,10 @@
+numpy==1.26.4
+pandas==2.2.2
+scikit-learn==1.4.2
+
+# Match project pins
+transformers==4.51.3
+accelerate==1.6.0
+librosa==0.10.2.post1
+soundfile>=0.12.1
+scipy>=1.10

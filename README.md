@@ -35,6 +35,167 @@ The model can synthesize speech up to **90 minutes** long with up to **4 distinc
 
 - **[2025-08-26] 🎉 We Open Source the [VibeVoice-Large](https://huggingface.co/aoi-ot/VibeVoice-Large) model weights!**
 - **[2025-08-28] 🎉 We provide a [Colab](https://colab.research.google.com/github/akadoubleone/VibeVoice-Community/blob/main/demo/VibeVoice_colab.ipynb) script for easy access to our model. Due to GPU memory limitations, only VibeVoice-1.5B is supported.**
+- **[2025-09-10] 🎉 Added Desktop GUI and enhanced Docker support with automatic port cleanup and GPU optimization!**
+- **[2025-11-07] 🎧 MAJOR UPDATE: Complete Ebook to Audiobook conversion system with Voice Library (50+ voices), Chapter Selection, and Multi-format support!**
+
+### 🎧 **NEW: Ebook to Audiobook Converter**
+
+Transform your digital books into high-quality audiobooks with our comprehensive conversion system featuring:
+
+#### 🎙️ **Voice Library (50+ Voices)**
+- **9 Languages**: English (US/UK), Spanish, French, Hindi, Italian, Japanese, Portuguese, Chinese
+- **Voice Categories**: Professional, Expressive, Storytelling, Premium voices
+- **Smart Search**: Find voices by name, accent, or characteristics
+- **Filter & Browse**: By language, gender, quality, and engine
+
+#### 📖 **Smart Chapter Selection**
+- **Interactive Chapter Picker**: Select specific chapters instead of converting entire books
+- **Bulk Operations**: Select all, ranges, first N chapters
+- **Chapter Preview**: See word counts and estimated duration
+- **Smart Detection**: Automatic chapter boundary detection
+
+#### 🔧 **Advanced Features**
+- **Multiple Formats**: WAV (uncompressed), MP3 (chapters + combined), M4B (audiobook with metadata)
+- **Metadata Support**: Embedded titles, authors, cover art for M4B files
+- **Multi-Engine Support**: VibeVoice (primary), Coqui TTS (Python 3.11), Auto-selection
+- **Quality Controls**: Adjustable speed (0.5x-2.0x), bitrate selection, advanced voice parameters
+
+#### 📁 **Supported Input Formats**
+- **PDF**: Portable Document Format
+- **EPUB**: Electronic Publication Format (best for chapter detection)
+- **DOCX**: Microsoft Word Documents
+- **TXT**: Plain Text Files
+
+#### 🚀 **Quick Start Ebook Conversion**
+```bash
+# Launch Ebook Converter GUI
+docker-compose up -d vibe-ebook
+# Access at http://localhost:7862
+
+# Or run directly
+python ebook_gui.py --port 7862
+```
+
+### 🖥️ User Interfaces
+
+VibeVoice now provides multiple ways to interact with the model:
+
+#### 🚀 Quick Start (Windows)
+```bash
+# Run the interactive launcher
+start.bat
+```
+
+#### 🎧 **Ebook to Audiobook Converter**
+- **50+ Voice Library** across 9 languages with smart search
+- **Interactive Chapter Selection** with preview and bulk operations  
+- **Multiple Output Formats** (WAV/MP3/M4B) with metadata support
+- **Advanced Controls** for speed, quality, and voice parameters
+
+```bash
+# Web interface (recommended)
+python ebook_gui.py --port 7862
+
+# Docker deployment
+docker-compose up -d vibe-ebook
+# Access at http://localhost:7862
+
+### Notes: voice samples and precision
+
+- Auto-created demo voice sample:
+  - If `demo/voices` is empty, the backend auto-creates a tiny placeholder sample at `demo/voices/en-Alice_woman.wav` so VibeVoice can run without manual reference audio. You can replace this with your own `.wav` or `.mp3` files; matching filenames (e.g., `en-Alice_woman.wav`) will be picked automatically.
+
+- CUDA precision (bf16 vs fp16):
+  - Some GPU/PyTorch builds don’t support bfloat16. We default to float16 on CUDA to avoid "unsupported ScalarType BFloat16" errors. To force bf16 on capable hardware, set `VIBEVOICE_USE_BF16=1` in your environment before running.
+
+- External tokenizer warning (optional):
+  - If an external tokenizer folder is configured (e.g., `D:/omen/temp/tokenizer`), you may see a class mismatch warning. It’s harmless for basic tests. Remove or update the external tokenizer path if you want to silence it.
+```
+
+#### 🖥️ Desktop Application
+- **Native GUI** with advanced features
+- **Batch processing** capabilities  
+- **Voice management** tools
+- **Real-time progress** tracking
+
+```bash
+python desktop_gui.py
+```
+
+#### 🌐 Web Interface (Speech Synthesis)
+- **Browser-based** interface with streaming
+- **Public sharing** via Gradio
+- **Real-time generation** with progress updates
+- **Docker containerized** for easy deployment
+
+```bash
+python demo/gradio_demo.py --model_path microsoft/VibeVoice-1.5B --share
+```
+
+#### 🐳 Docker Setup (Improved)
+- **GPU-optimized** containers with RTX 5070 support
+- **Automatic port cleanup** to prevent conflicts
+- **Easy management** scripts for Windows and Linux
+- **Dual Python environments** (3.13 + 3.11 for TTS engines)
+
+```bash
+# Windows PowerShell
+.\manage-container.ps1 start          # Main VibeVoice (port 7860)
+.\manage-container.ps1 ebook          # Ebook Converter (port 7862)  
+.\manage-container.ps1 ebook-py311    # Ebook + Coqui TTS (port 7863)
+
+# Linux/Mac
+./manage-container.sh start
+./manage-container.sh ebook
+```
+
+# Docker Compose
+docker-compose up --build -d
+```
+
+#### 📚 Ebook to Audiobook Converter
+Transform any ebook into a professional audiobook with chapter markers and metadata!
+
+**Supported Formats:**
+- **PDF** - Portable Document Format
+- **TXT** - Plain text files  
+- **DOCX** - Microsoft Word documents
+- **EPUB** - Electronic publication format
+
+**Output Formats:**
+- **WAV** - Uncompressed audio (best quality)
+- **MP3** - Compressed audio with metadata
+- **M4B** - Audiobook format with chapter markers
+
+**TTS Engines:**
+- **VibeVoice** - High-quality Microsoft TTS (always available)
+- **Coqui AI** - Open-source TTS with multiple voices (Python 3.11 container)
+
+```bash
+# Start basic ebook converter (VibeVoice only)
+.\manage-container.ps1 ebook
+# Access at http://localhost:7862
+
+# Start full converter with Coqui AI support
+.\manage-container.ps1 ebook-py311
+# Access at http://localhost:7863
+
+# Command line usage
+python ebook_converter.py input.pdf -o output/ --format m4b --title "My Book" --author "Author Name"
+
+# Test the functionality
+python test_packaging.py
+```
+
+**Features:**
+- 🎭 **Multi-engine TTS** (VibeVoice + Coqui AI)
+- 📖 **Smart chapter detection** from document structure
+- 🎵 **Multiple formats** (WAV, MP3, M4B) with metadata
+- 🖼️ **Cover art embedding** for M4B audiobooks
+- ⚡ **Preview mode** for testing (first 2 chapters)
+- 🔧 **Batch processing** with progress tracking
+- 📱 **Chapter markers** for navigation
+- 🎛️ **Configurable quality** (bitrate, speed, voice)
 
 ### 📋 TODO
 
@@ -48,6 +209,14 @@ The model can synthesize speech up to **90 minutes** long with up to **4 distinc
 **Video Demo**
 
 We produced this video with [Wan2.2](https://github.com/Wan-Video/Wan2.2). We sincerely appreciate the Wan-Video team for their great work.
+
+## Troubleshooting
+
+If you encounter a NumPy ABI error on Windows (e.g., "numpy.dtype size changed" when importing transformers/pandas/sklearn), install the dev-tested stack first:
+
+```
+pip install -r dev-requirements.txt
+```
 
 **English**
 <div align="center">
@@ -90,6 +259,73 @@ For more examples, see the [Project Page](https://microsoft.github.io/VibeVoice)
 
 Try it on [Colab](https://colab.research.google.com/github/akadoubleone/VibeVoice-Community/blob/main/demo/VibeVoice_colab.ipynb) or [Demo](https://aka.ms/VibeVoice-Demo).
 
+## 🎤 Voice Library
+
+Our comprehensive voice library includes **50+ high-quality voices** across **9 languages**, carefully curated for audiobook narration:
+
+### 🌍 **Language Coverage**
+| Language | Voices | Highlights |
+|----------|--------|------------|
+| 🇺🇸 **English (US)** | 20 voices | Premium collection with diverse styles |
+| 🇬🇧 **English (UK)** | 8 voices | Elegant British accents |
+| 🇪🇸 **Spanish** | 3 voices | Clear Latin American pronunciation |
+| 🇫🇷 **French** | 1 voice | Sophisticated Parisian accent |
+| 🇮🇳 **Hindi** | 4 voices | Modern Indian English blend |
+| 🇮🇹 **Italian** | 2 voices | Melodic Mediterranean charm |
+| 🇯🇵 **Japanese** | 5 voices | Traditional and modern styles |
+| 🇧🇷 **Portuguese** | 3 voices | Rich Brazilian pronunciation |
+| 🇨🇳 **Chinese** | 8 voices | Mandarin with regional variations |
+
+### ⭐ **Voice Categories**
+
+**Premium Voices** - Enhanced emotional range and expressiveness
+- Heart (US Female) - Emotional storytelling
+- Sky (US Female) - Bright and uplifting
+- Fenrir (US Male) - Dramatic narration
+- Isabella (UK Female) - Aristocratic elegance
+
+**Professional Voices** - Clear, consistent delivery
+- Jessica (US Female) - Business presentations
+- Michael (US Male) - Professional narration
+- Daniel (UK Male) - Distinguished gentleman
+- Nicola (IT Male) - Passionate Italian delivery
+
+**Character Voices** - Unique personalities for specific content
+- Puck (US Male) - Playful and energetic
+- Santa (US Male) - Warm and jolly
+- Gongitsune (JP Female) - Traditional Japanese storytelling
+- Nezumi (JP Female) - Cute and youthful
+
+### 🔍 **Smart Voice Discovery**
+
+**Search Features:**
+- **Text Search**: Find voices by name, accent, or characteristics
+- **Language Filter**: Browse voices by specific languages
+- **Gender Filter**: Male, female, or neutral voices
+- **Quality Filter**: Premium, high, or standard quality
+- **Style Tags**: Professional, storytelling, expressive, etc.
+
+**Example Searches:**
+```
+"british elegant" → Isabella, Emma, Alice (UK)
+"storytelling male" → Fenrir, Fable, Kumo
+"professional female" → Jessica, Nicole, Sara
+"warm friendly" → Bella, River, Santa
+```
+
+### 🎛️ **Voice Controls**
+
+**Basic Controls:**
+- **Speed**: 0.5x - 2.0x (recommended: 1.3x for audiobooks)
+- **Quality**: Multiple bitrate options for size vs quality
+- **Format**: WAV (uncompressed), MP3 (balanced), M4B (audiobook)
+
+**Advanced Controls** (Coming Soon):
+- **Expressiveness**: Control emotional range and variation
+- **Consistency**: Balance between natural variation and stability
+- **Pacing**: Fine-tune rhythm and pauses
+- **Emphasis**: Adjust sentence and paragraph emphasis
+
 
 
 ## Models
@@ -119,6 +355,31 @@ git clone https://github.com/microsoft/VibeVoice.git
 cd VibeVoice/
 
 pip install -e .
+```
+
+### Local Workspace Setup (Omen)
+
+For the `D:\omen` layout used in this workspace, point the Community virtual environment at the upstream package and reuse the shared Hugging Face cache:
+
+```powershell
+# Clone or refresh the upstream source alongside the community wrapper
+gh repo clone vibevoice-community/VibeVoice pipelines/voice/VibeVoice
+
+Set-Location D:\omen\pipelines\voice\VibeVoice-Community
+# Install upstream package into the community venv
+.\.venv\Scripts\python -m pip install -e ..\VibeVoice
+```
+
+```powershell
+# Ensure the GUI and smoke tests see the shared HF cache
+$env:HF_HOME = 'D:\omen\models\hf\hub'
+$env:HUGGINGFACE_HUB_CACHE = $env:HF_HOME
+```
+
+Run the lightweight smoke test any time dependencies change to verify imports before launching the GUI:
+
+```powershell
+.\.venv\Scripts\python scripts\gui_smoke_test.py
 ```
 
 ## Usages

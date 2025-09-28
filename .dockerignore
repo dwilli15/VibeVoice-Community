@@ -1,0 +1,56 @@
+# Docker ignore for production build
+# Exclude unnecessary files to speed up build
+
+# Virtual environment (will be recreated in container)
+.venv/
+.venv
+
+# Outputs and temporary files
+outputs/
+models/
+temp/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+
+# Development files
+.git/
+.vs/
+.vscode/
+*.log
+*.tmp
+
+# Test files  
+test_*.py
+*_test.py
+tests/
+
+# Documentation that's not needed in container
+*.md
+!README.md
+
+# Windows specific
+Thumbs.db
+*.lnk
+
+# Large model files (mount at runtime)
+*.bin
+*.safetensors
+*.ckpt
+*.pt
+*.pth
+
+# Old Docker files
+Dockerfile.ebook*
+Dockerfile.multimodel
+docker-compose.yml
+
+# Scripts not needed in container
+manage-container*.ps1
+manage-container*.sh
+cleanup_script.ps1
+*.bat
+!start_gui.bat
