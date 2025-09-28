@@ -41,6 +41,33 @@ The model can synthesize speech up to **90 minutes** long with up to **4 distinc
 - [ ] Merge models into official Hugging Face repository ([PR](https://github.com/huggingface/transformers/pull/40546))
 - [ ] Release example training code and documentation
 - [ ] VibePod:  End-to-end solution that creates podcasts from documents, webpages, or even a simple topic.
+- [x] **VibeVoice Integrated TTS/STT Studio**: Comprehensive Streamlit GUI combining VibeVoice, Whisper, Audiblez, and Coqui TTS
+
+## 🖥️ VibeVoice Integrated Studio
+
+We've created a comprehensive **Streamlit GUI** that integrates VibeVoice with other state-of-the-art TTS and STT models:
+
+### 🚀 Features
+- **Multi-Engine TTS**: VibeVoice, Coqui TTS, and Audiblez (Kokoro) support
+- **Advanced STT**: OpenAI Whisper integration for speech-to-text
+- **Ebook to Audiobook**: Convert text files to full audiobooks
+- **Podcast Generation**: Multi-speaker podcast creation
+- **Voice Cloning**: Clone voices from audio samples
+- **Demo Mode**: Works offline with synthetic audio for demonstration
+
+### Quick Start
+```bash
+# Launch the integrated studio
+python launch_gui.py
+
+# Or install dependencies and run directly
+python install_gui_deps.py
+streamlit run streamlit_gui.py
+```
+
+See [GUI_README.md](GUI_README.md) for detailed documentation.
+
+---
 
 ### 🎵 Demo Examples
 

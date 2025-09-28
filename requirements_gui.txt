@@ -1,0 +1,28 @@
+# Additional requirements for the Streamlit GUI
+streamlit>=1.20.0
+openai-whisper>=20231117
+TTS>=0.21.0
+soundfile>=0.12.1
+
+# Optional dependencies for enhanced functionality
+streamlit-audio-recorder
+streamlit-webrtc
+whisperx  # Advanced whisper with speaker diarization
+kokoro-tts  # Audiblez Kokoro TTS
+
+# Audio processing
+pydub>=0.25.1
+resampy>=0.4.2
+
+# UI enhancements
+streamlit-option-menu
+streamlit-lottie
+streamlit-aggrid
+
+# File handling
+python-docx
+PyPDF2
+ebooklib
+
+# Additional audio formats support
+ffmpeg-python

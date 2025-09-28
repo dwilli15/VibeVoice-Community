@@ -1,0 +1,5 @@
+Alice: Welcome to our technology podcast!
+        Bob: Thanks for having me, Alice. Today we're discussing AI voice technology.
+        Alice: That's right. VibeVoice represents a significant advancement in this field.
+        Bob: Absolutely. The ability to generate long-form conversational audio is remarkable.
+        Alice: Our listeners can experience this technology firsthand through our integrated studio.
